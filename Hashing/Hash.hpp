@@ -16,7 +16,7 @@ class AHash {
 			loading_factor = 0;
 			num_elements = 0;
 		}
-		~AHash() { delete stash; }
+		virtual ~AHash() {};
 		int *hash() { return stash; }
 
 		void insert(int key) {
@@ -39,8 +39,7 @@ class AHash {
 		}
 
 		int operator[](int key) {
-			int hashed_value = hashing_function(key);
-			return search(hashed_value);
+			return search(key);
 		}
 
 		void display() {
