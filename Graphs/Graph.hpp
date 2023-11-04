@@ -8,6 +8,9 @@
 #include <list>
 #include <stack>
 #include <queue>
+#include <limits>
+
+#define INF	numeric_limits<int>::max()
 
 using namespace std;
 class Node;
@@ -25,7 +28,7 @@ class Edge {
 class Node {
 	public:
 		Node() {}
-		Node(int n): data(n) {}
+		Node(int n, int i): data(n), id(i) {}
 		~Node() = default;
 
 		void addEdge(Node *node, int weight) {
@@ -39,36 +42,43 @@ class Node {
 		}
 
 		void display() {
-			cout << data << " (" << this << ")" << endl;
+			cout << data << " (" << this << "), id: " << id << endl;
 			for (auto edge : edges)
 				edge.display();
 			cout << endl;
 		}
 
+		int getEdgeWeight(int n) {
+			for (auto edge : edges) {
+				if (edge.node->data == n)
+					return edge.weight;
+			}
+			return INF;
+		}
+
 		int data;
+		int id;
 		list<Edge> edges;
 };
 
 void Edge::display() {
-	cout << "\t[ data: " << node->data << " (" << node << "), weight: " << weight << " ]" << endl;
+	cout << "\t[ data: " << node->data << " (" << node << "), id: "<< node->id << ", weight: " << weight << " ]" << endl;
 }
 
-class Graph {
+class AbstractGraph {
 	public:
-		Graph() = default;
-		~Graph() = default;
+		AbstractGraph() = default;
+		~AbstractGraph() = default;
 
 		void addEdge(int from, int to, int weight) {
 			// If either from or to don't yet exist, create and add them to adjecency list
 			if (adjecency_list.count(from) == 0) {
-				adjecency_list[from] = Node(from);
+				adjecency_list[from] = Node(from, ++num_vertices);
 				db.push_back(from);
-				cout << "Created " << from << endl;
 			}
 			if (adjecency_list.count(to) == 0) {
-				adjecency_list[to] = Node(to);
+				adjecency_list[to] = Node(to, ++num_vertices);
 				db.push_back(to);
-				cout << "Created " << to << endl;
 			}
 
 			Node &from_node = adjecency_list[from];
@@ -92,63 +102,9 @@ class Graph {
 				adjecency_list[num].display();
 		}
 
-		void BFS() {
-			queue<int> q;
-			unordered_map<int,bool> visited;
-
-			q.push(db.front());
-			visited[db.front()] = true;
-
-			while (!q.empty()) {
-				Node &cur = adjecency_list[q.front()];
-				q.pop();
-				cout << cur.data << " ";
-
-				for (auto edge : cur.edges) {
-					if (visited.count(edge.node->data) == 0) {
-						q.push(edge.node->data);
-						visited[edge.node->data] = true;
-					}
-				}
-			}
-			cout << endl;
-		}
-
-		void iterativeDFS() {
-			stack<int> s;
-			unordered_map<int,bool> visited;
-
-			s.push(db.front());
-			visited[db.front()] = true;
-			while (!s.empty()) {
-				Node &cur = adjecency_list[s.top()];
-				s.pop();
-				cout << cur.data << " ";
-
-				for (auto edge : cur.edges) {
-					if (visited.count(edge.node->data) == 0) {
-						s.push(edge.node->data);
-						visited[edge.node->data] = true;
-					}
-				}
-			}
-			cout << endl;
-		}
-
-		void recursiveDFS(Node *node) {
-			static unordered_map<int,bool> visited;
-
-			if (visited.count(node->data) == 0) {
-				visited[node->data] = true;
-				cout << node->data << " ";
-				for (auto edge : node->edges)
-					if (visited.count(edge.node->data) == 0)
-						recursiveDFS(edge.node);
-			}
-		}
-
-	private:
+	protected:
 		vector<int> db;
+		int num_vertices = 0;
 		unordered_map<int,Node> adjecency_list;
 };
 

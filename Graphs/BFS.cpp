@@ -1,7 +1,32 @@
 #include "Graph.hpp"
 
+class BFSGraph : public AbstractGraph {
+	public:
+		void BFS() {
+			queue<int> q;
+			unordered_map<int,bool> visited;
+
+			q.push(db.front());
+			visited[db.front()] = true;
+
+			while (!q.empty()) {
+				Node &cur = adjecency_list[q.front()];
+				q.pop();
+				cout << cur.data << " ";
+
+				for (auto edge : cur.edges) {
+					if (visited.count(edge.node->data) == 0) {
+						q.push(edge.node->data);
+						visited[edge.node->data] = true;
+					}
+				}
+			}
+			cout << endl;
+		}
+};
+
 int main() {
-	Graph graph;
+	BFSGraph graph;
 
 	graph.addEdge(1, 2, 0);
 	graph.addEdge(1, 3, 0);
@@ -13,7 +38,6 @@ int main() {
 	graph.display();
 
 	graph.BFS();
-	graph.iterativeDFS();
-	graph.recursiveDFS(graph.getFirst());
+
 	return 0;
 }
